@@ -98,7 +98,7 @@ local function gemini_code()
   local lines = vim.fn.split(generated_text, "\n")
 
   -- Clear the selected text
-  vim.api.nvim_buf_set_lines(buf, start_line - 1, end_line + 1, false, {})
+  vim.api.nvim_buf_set_lines(buf, start_line - 1, end_line, false, {})
 
   -- Paste the generated text in place of the selection
   vim.api.nvim_buf_set_lines(buf, start_line - 1, start_line - 1, false, lines)
