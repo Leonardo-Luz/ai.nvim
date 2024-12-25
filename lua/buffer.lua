@@ -10,7 +10,7 @@ M.get_text_from_buffer = function()
   local text = {}
   local buffer_content = ""
 
-  local regex = "V|v"
+  local regex = "[Vv]"
 
   if mode:find(regex) then
     local start_pos = vim.fn.getpos("v") -- Start of visual selection
