@@ -11,85 +11,164 @@ local state = {
   },
 }
 
-function Submit_basic_input()
-  local buf = vim.api.nvim_get_current_buf()
-  local input = table.concat(vim.api.nvim_buf_get_lines(buf, 0, -1, false), "\n")
-
-  local generated_text = textgen.generate_text({ prompt = input }).generated_text
-
-  -- Optionally, close the window after submission
-  vim.api.nvim_win_close(0, true) -- Close the current window
-
-  floatwindow.create_floating_text_window({ state = state, text = generated_text })
-end
-
-local function handle_basic_input(buf)
-  vim.api.nvim_buf_set_keymap(buf, "n", "<CR>", "<Cmd>lua Submit_basic_input()<CR>", { noremap = true, silent = true })
-end
-
-local buf_text = nil
-
-function Submit_buffer_input()
-  local buf = vim.api.nvim_get_current_buf()
-  local input = table.concat(vim.api.nvim_buf_get_lines(buf, 0, -1, false), "\n")
-
-  local prompt = string.format("%s %s", input, buf_text)
-
-  local generated_text = textgen.generate_text({ prompt = prompt }).generated_text
-
-  -- Optionally, close the window after submission
-  vim.api.nvim_win_close(0, true) -- Close the current window
-
-  floatwindow.create_floating_text_window({ state = state, text = generated_text })
-end
-
-local function handle_buffer_input(buf)
-  local command = "<Cmd>lua Submit_buffer_input()<CR>"
-
-  vim.api.nvim_buf_set_keymap(buf, "n", "<CR>", command, { noremap = true, silent = true })
-end
+---@type window.Opts[]
+local window_style = {
+  background = {
+    floating = {
+      buf = -1,
+      win = -1,
+    },
+    opts = {},
+  },
+  header = {
+    floating = {
+      buf = -1,
+      win = -1,
+    },
+    opts = {},
+  },
+  main = {
+    floating = {
+      buf = -1,
+      win = -1,
+    },
+    opts = {},
+  },
+}
 
 M.create_prompt = function()
   -- Get current window size
   local width = vim.api.nvim_win_get_width(0) -- Current window width
   local height = vim.api.nvim_win_get_height(0) -- Current window height
 
-  -- Create a buffer for the input
-  local buf = vim.api.nvim_create_buf(false, true) -- Create a new empty buffer
+  local title = " AI Input "
 
   -- Set up the floating window options
-  local opts = {
+  window_style.header.opts = {
     relative = "editor",
-    width = math.floor(width * 0.5), -- Set the width of the window to 50% of the screen
-    height = math.floor(height * 0.06), -- Set the height of the window to 20% of the screen
-    col = math.floor((width * 0.5) / 2), -- Center the window horizontally
-    row = math.floor((height * 0.5)), -- Center the window vertically
-    style = "minimal", -- Remove borders, title, etc.
-    border = "rounded",
-    title = "- AI Prompt  ",
+    width = string.len(title), -- Set the width of the window to 50% of the screen
+    height = 1,
+    col = math.floor((width * 0.5) / 2) + math.floor(width * 0.2), -- Center the window horizontally
+    row = math.floor((height * 0.5)) - 0, -- Center the window vertically
+    style = "minimal",
+    zindex = 3,
+    border = "none",
   }
 
+  window_style.main.opts = {
+    relative = "editor",
+    width = math.floor(width * 0.4), -- Set the width of the window to 50% of the screen
+    height = 1,
+    col = math.floor((width * 0.5) / 2) + 3, -- Center the window horizontally
+    row = math.floor((height * 0.5)) + 1, -- Center the window vertically
+    style = "minimal",
+    border = { " ", " ", " ", " ", " ", " ", " ", ">" },
+    zindex = 2,
+  }
+
+  window_style.background.opts = {
+    relative = "editor",
+    width = math.floor(width * 0.5), -- Set the width of the window to 50% of the screen
+    height = 3,
+    col = math.floor((width * 0.5) / 2), -- Center the window horizontally
+    row = math.floor((height * 0.5)), -- Center the window vertically
+    style = "minimal",
+    border = "rounded",
+    zindex = 1,
+  }
+
+  -- Create a buffer for the input
+  window_style.header.floating.buf = vim.api.nvim_create_buf(false, true) -- Create a new empty buffer
+  window_style.background.floating.buf = vim.api.nvim_create_buf(false, true) -- Create a new empty buffer
+  window_style.main.floating.buf = vim.api.nvim_create_buf(false, true) -- Create a new empty buffer
+
   -- Open the floating window
-  local win = vim.api.nvim_open_win(buf, true, opts)
+  window_style.header.floating.win =
+    vim.api.nvim_open_win(window_style.header.floating.buf, true, window_style.header.opts)
+
+  window_style.background.floating.win =
+    vim.api.nvim_open_win(window_style.background.floating.buf, true, window_style.background.opts)
+
+  window_style.main.floating.win = vim.api.nvim_open_win(window_style.main.floating.buf, true, window_style.main.opts)
+
+  vim.api.nvim_buf_set_lines(window_style.header.floating.buf, 0, -1, false, { title })
 
   -- You can also set a default prompt or text in the buffer
   -- vim.api.nvim_buf_set_lines(buf, 0, -1, false, { 'Write your question here...' })
 
-  vim.api.nvim_buf_set_keymap(buf, "n", "<ESC><ESC>", "<Cmd>q<CR>", { noremap = true, silent = true })
+  vim.keymap.set("n", "q", function()
+    vim.api.nvim_win_close(window_style.main.floating.win, true)
+  end, {
+    buffer = window_style.main.floating.buf,
+  })
 
-  return { buf = buf, win = win }
+  vim.keymap.set("n", "<Esc><Esc>", function()
+    vim.api.nvim_win_close(window_style.main.floating.win, true)
+  end, {
+    buffer = window_style.main.floating.buf,
+  })
+
+  return { buf = window_style.main.floating.buf, win = window_style.main.floating.win }
+end
+
+local handle_input = function(buf, input)
+  vim.keymap.set("n", "<CR>", function()
+    local prompt = table.concat(vim.api.nvim_buf_get_lines(buf, 0, -1, false), "\n")
+
+    local generated_text = textgen.generate_text({ prompt = prompt .. (input or "") }).generated_text
+
+    -- FIX: vim.o.lines/columns are getting the window size that is closing, so 0 of size
+    local height = 40 --vim.o.lines
+    local width = 160 --vim.o.columns
+
+    ---@type vim.api.keyset.win_config
+    local opts = {
+      relative = "editor",
+      style = "minimal",
+      height = height * 0.8,
+      width = width * 0.8,
+      col = (width - width * 0.8) / 2,
+      row = (height - height * 0.8) / 2,
+      border = "rounded",
+    }
+
+    local float = floatwindow.create_floating_window({ floating = state.floating, opts = opts })
+
+    local lines = vim.split(generated_text, "\n")
+
+    -- Clear the buffer first
+    vim.api.nvim_buf_set_lines(float.buf, 0, -1, false, {})
+
+    vim.api.nvim_buf_set_lines(float.buf, 0, #lines, false, lines)
+
+    vim.api.nvim_buf_set_keymap(float.buf, "n", "<ESC><ESC>", "<Cmd>q<CR>", { noremap = true, silent = true })
+  end, {
+    buffer = buf,
+    silent = true,
+  })
+
+  vim.api.nvim_create_autocmd("BufLeave", {
+    buffer = buf,
+    callback = function()
+      pcall(vim.api.nvim_win_close, window_style.main.floating.win, true)
+      pcall(vim.api.nvim_win_close, window_style.header.floating.win, true)
+      pcall(vim.api.nvim_win_close, window_style.background.floating.win, true)
+    end,
+  })
 end
 
 local function toggle_prompt()
-  local buf = M.create_prompt().buf
-  handle_basic_input(buf)
+  M.create_prompt()
+
+  handle_input(window_style.main.floating.buf)
 end
 
 local function toggle_buffer_prompt()
-  buf_text = buffer.get_text_from_buffer().buffer_content
+  local buf_text = buffer.get_text_from_buffer().buffer_content
 
-  local buf = M.create_prompt().buf
-  handle_buffer_input(buf)
+  M.create_prompt()
+
+  handle_input(window_style.main.floating.buf, buf_text)
 end
 
 vim.api.nvim_create_user_command("GeminiPrompt", toggle_prompt, {})
