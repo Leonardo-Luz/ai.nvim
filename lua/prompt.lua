@@ -93,17 +93,15 @@ M.create_prompt = function()
 
   vim.api.nvim_buf_set_lines(window_style.header.floating.buf, 0, -1, false, { title })
 
-  -- You can also set a default prompt or text in the buffer
-  -- vim.api.nvim_buf_set_lines(buf, 0, -1, false, { 'Write your question here...' })
-
   vim.keymap.set("n", "q", function()
     vim.api.nvim_win_close(window_style.main.floating.win, true)
   end, {
     buffer = window_style.main.floating.buf,
   })
 
-  vim.keymap.set("n", "<Esc><Esc>", function()
+  vim.keymap.set("i", "<Esc>", function()
     vim.api.nvim_win_close(window_style.main.floating.win, true)
+    vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Esc>", true, true, true), "n", true)
   end, {
     buffer = window_style.main.floating.buf,
   })
@@ -112,7 +110,7 @@ M.create_prompt = function()
 end
 
 local handle_input = function(buf, input)
-  vim.keymap.set("n", "<CR>", function()
+  vim.keymap.set("i", "<CR>", function()
     local prompt = table.concat(vim.api.nvim_buf_get_lines(buf, 0, -1, false), "\n")
 
     local generated_text = textgen.generate_text({ prompt = prompt .. (input or "") }).generated_text
@@ -141,7 +139,13 @@ local handle_input = function(buf, input)
 
     vim.api.nvim_buf_set_lines(float.buf, 0, #lines, false, lines)
 
-    vim.api.nvim_buf_set_keymap(float.buf, "n", "<ESC><ESC>", "<Cmd>q<CR>", { noremap = true, silent = true })
+    vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Esc>", true, true, true), "n", true)
+
+    vim.keymap.set("n", "<Esc><Esc>", function()
+      vim.api.nvim_win_close(float.win, true)
+    end, {
+      buffer = float.buf,
+    })
   end, {
     buffer = buf,
     silent = true,
@@ -160,11 +164,15 @@ end
 local function toggle_prompt()
   M.create_prompt()
 
+  vim.cmd("startinsert")
+
   handle_input(window_style.main.floating.buf)
 end
 
 local function toggle_buffer_prompt()
   local buf_text = buffer.get_text_from_buffer().buffer_content
+
+  vim.cmd("startinsert")
 
   M.create_prompt()
 
