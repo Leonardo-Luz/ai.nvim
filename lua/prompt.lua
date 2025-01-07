@@ -62,7 +62,7 @@ M.create_prompt = function()
     col = math.floor((width * 0.5) / 2) + 3, -- Center the window horizontally
     row = math.floor((height * 0.5)) + 1, -- Center the window vertically
     style = "minimal",
-    border = { " ", " ", " ", " ", " ", " ", " ", ">" },
+    border = { " ", " ", " ", " ", " ", " ", " ", "" },
     zindex = 2,
   }
 
@@ -170,7 +170,7 @@ local function toggle_prompt()
 end
 
 local function toggle_buffer_prompt()
-  local buf_text = buffer.get_text_from_buffer().buffer_content
+  local buf_text = buffer.get_text_from_buffer()
 
   vim.cmd("startinsert")
 

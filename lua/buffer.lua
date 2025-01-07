@@ -3,6 +3,8 @@ local floatwindow = require("floatwindow")
 
 local M = {}
 
+---Takes text from buffer or from selection
+---@return string: Text
 M.get_text_from_buffer = function()
   local mode = vim.fn.mode()
   local buffer = vim.api.nvim_get_current_buf()
@@ -31,7 +33,7 @@ M.get_text_from_buffer = function()
     buffer_content = table.concat(text, "\n")
   end
 
-  return { buffer_content = buffer_content }
+  return buffer_content
 end
 
 local state = {
@@ -41,16 +43,19 @@ local state = {
   },
 }
 
+---Uses text from buffer and user input to generate AI response
+---@param opts { args: string }
 local function toggle_ai(opts)
-  local buffer_content = M.get_text_from_buffer().buffer_content
+  local buffer_content = M.get_text_from_buffer()
 
-  -- Generate text from the entire buffer or visual selection
-  local generated_text = textgen.generate_text({ args = opts.args, prompt = buffer_content }).generated_text
+  -- Generate text from the current buffer or visual selection
+  local generated_text = textgen.generate_text({ prompt = opts.args .. " " .. buffer_content }).generated_text
 
   floatwindow.create_floating_text_window({ state = state, text = generated_text })
 end
 
-local function gemini_code()
+---Takes text from current selection and refactor it with AI
+local function ai_code_refactor()
   local buf = vim.api.nvim_get_current_buf()
 
   local start_pos = vim.fn.getpos("v") -- Start of visual selection
@@ -110,8 +115,8 @@ local function gemini_code()
   vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Esc>", true, false, true), "n", true)
 end
 
-vim.api.nvim_create_user_command("GeminiBuffer", toggle_ai, { nargs = 1 })
+vim.api.nvim_create_user_command("AiBuffer", toggle_ai, { nargs = 1 })
 
-vim.keymap.set("v", "<leader>gc", gemini_code, { desc = "[G]emini [C]ode Fix", silent = false })
+vim.keymap.set("v", "<leader>ar", ai_code_refactor, { desc = "[A]I Code [R]efactor", silent = false })
 
 return M
