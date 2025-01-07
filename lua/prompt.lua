@@ -179,10 +179,10 @@ local function toggle_buffer_prompt()
   handle_input(window_style.main.floating.buf, buf_text)
 end
 
-vim.api.nvim_create_user_command("GeminiPrompt", toggle_prompt, {})
+vim.api.nvim_create_user_command("AiPrompt", toggle_prompt, {})
 
-vim.api.nvim_create_user_command("GeminiBufferPrompt", toggle_buffer_prompt, {})
+vim.api.nvim_create_user_command("AiBufferPrompt", toggle_buffer_prompt, {})
 
-vim.keymap.set({ "n", "v" }, "<leader>gb", toggle_buffer_prompt, { desc = "[G]emini [B]uffer Prompt" })
+vim.keymap.set({ "n", "v" }, "<leader>ab", toggle_buffer_prompt, { desc = "[A]I [B]uffer Prompt" })
 
 return M

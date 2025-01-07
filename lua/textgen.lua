@@ -65,9 +65,7 @@ local function print_ai(opts)
   print(M.generate_text({ prompt = opts.args }).generated_text)
 end
 
--- FIX: CHANGE CODE FROM Gemini to ?
-
 -- Create command
-vim.api.nvim_create_user_command("Gemini", print_ai, { nargs = 1 })
+vim.api.nvim_create_user_command("Ai", print_ai, { nargs = 1 })
 
 return M
