@@ -51,7 +51,9 @@ local function toggle_ai(opts)
   -- Generate text from the current buffer or visual selection
   local generated_text = textgen.generate_text({ prompt = opts.args .. " " .. buffer_content }).generated_text
 
-  floatwindow.create_floating_text_window({ state = state, text = generated_text })
+  local floating = floatwindow.create_floating_text_window({ state = state, text = generated_text })
+
+  vim.bo[floating.buf].filetype = "markdown"
 end
 
 ---Takes text from current selection and refactor it with AI

@@ -132,6 +132,8 @@ local handle_input = function(buf, input)
 
     local float = floatwindow.create_floating_window({ floating = state.floating, opts = opts })
 
+    vim.bo[float.buf].filetype = "markdown"
+
     local lines = vim.split(generated_text, "\n")
 
     -- Clear the buffer first
