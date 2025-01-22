@@ -128,6 +128,7 @@ local handle_input = function(buf, input)
       col = (width - width * 0.8) / 2,
       row = (height - height * 0.8) / 2,
       border = "rounded",
+      zindex = 111,
     }
 
     local float = floatwindow.create_floating_window({ floating = state.floating, opts = opts })
