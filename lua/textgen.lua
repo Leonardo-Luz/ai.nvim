@@ -31,28 +31,48 @@ end
 --- @param opts generate.Opts
 --- @return generate.Text
 M.generate_text = function(opts)
-  local prompt = string.format("%s", opts.prompt)
+  local sanitized_prompt = sanitizeString(opts.prompt)
 
-  -- Remove -s flag to enable curl logs
+  -- local httpRequest = 'curl -s --max-time 60 -H "Content-Type: application/json" -H "x-goog-api-key: '
+  --   .. GEMINI_API_KEY
+  --   .. '" -X POST -d "{"contents":[{"parts":[{"text":"'
+  --   .. sanitized_prompt
+  --   .. '"}]}]}" '
+  --   .. GEMINI_API_URL
+
   local httpRequest = string.format(
-    "curl -s '%s' -H 'Content-Type: application/json' -H 'x-goog-api-key: %s' -X POST -d '{\"contents\": [{\"parts\": [{\"text\": \"%s\"}]}]}'",
+    "curl -s '%s' --max-time 60 -H 'Content-Type: application/json' -H 'x-goog-api-key: %s' -X POST -d '{\"contents\": [{\"parts\": [{\"text\": \"%s\"}]}]}'",
     GEMINI_API_URL,
     GEMINI_API_KEY,
-    sanitizeString(prompt)
+    sanitized_prompt
   )
 
-  -- Make the HTTP request
-  local response = io.popen(httpRequest)
-
-  if not response then
-    print("Response error")
-    return {}
+  local handle = io.popen(httpRequest)
+  if handle == nil then
+    print("Error: Could not execute curl command.")
+    return { generated_text = "curl execution failed" }
   end
 
-  local data = response:read("all")
-  local decoded_data = vim.json.decode(data)
-  local generated_text = decoded_data.candidates[1].content.parts[1].text
+  local data, err = handle:read("*a")
+  handle:close()
 
+  if err then
+    print("Error reading curl response: " .. err)
+    return { generated_text = "curl read failed" }
+  end
+
+  local decoded_data = vim.json.decode(data)
+  if not decoded_data then
+    print("Error decoding JSON response. " .. "\nResponse: " .. data)
+    return { generated_text = "JSON decoding failed" }
+  end
+
+  if not decoded_data.candidates or #decoded_data.candidates == 0 then
+    print("Error: Gemini API returned unexpected data: " .. vim.inspect(decoded_data))
+    return { generated_text = "Unexpected API response" }
+  end
+
+  local generated_text = decoded_data.candidates[1].content.parts[1].text or ""
   return { generated_text = generated_text }
 end
 
