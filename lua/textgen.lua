@@ -31,14 +31,11 @@ end
 --- @param opts generate.Opts
 --- @return generate.Text
 M.generate_text = function(opts)
-  local sanitized_prompt = sanitizeString(opts.prompt)
+  if GEMINI_API_KEY == nil then
+    return { generated_text = "AI key not properly set" }
+  end
 
-  -- local httpRequest = 'curl -s --max-time 60 -H "Content-Type: application/json" -H "x-goog-api-key: '
-  --   .. GEMINI_API_KEY
-  --   .. '" -X POST -d "{"contents":[{"parts":[{"text":"'
-  --   .. sanitized_prompt
-  --   .. '"}]}]}" '
-  --   .. GEMINI_API_URL
+  local sanitized_prompt = sanitizeString(opts.prompt)
 
   local httpRequest = string.format(
     "curl -s '%s' --max-time 60 -H 'Content-Type: application/json' -H 'x-goog-api-key: %s' -X POST -d '{\"contents\": [{\"parts\": [{\"text\": \"%s\"}]}]}'",
