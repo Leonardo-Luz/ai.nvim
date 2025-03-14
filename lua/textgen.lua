@@ -4,10 +4,8 @@ local M = {}
 local GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 local GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent"
 
--- FIX: Change from delete to escape special chars
--- Change to http specif package
-
 --- Take a string and remove special characters
+--- @deprecated
 --- @param input string
 --- @return string: Sanitized string
 local function sanitizeString(input)
@@ -72,17 +70,5 @@ M.generate_text = function(opts)
   local generated_text = decoded_data.candidates[1].content.parts[1].text or ""
   return { generated_text = generated_text }
 end
-
---- @class print.Opts
---- @field args string
-
---- Takes user input
---- @param opts print.Opts
-local function print_ai(opts)
-  print(M.generate_text({ prompt = opts.args }).generated_text)
-end
-
--- Create command
-vim.api.nvim_create_user_command("Ai", print_ai, { nargs = 1 })
 
 return M

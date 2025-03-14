@@ -1,4 +1,3 @@
 ## TODO
 
-- [ ] Replace `curl` with a dedicated HTTP library, such as `luarock/http`, for handling requests.
-
+* Implement `deepseek` as an AI option.

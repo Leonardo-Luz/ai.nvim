@@ -172,7 +172,7 @@ local function toggle_prompt()
   handle_input(window_style.main.floating.buf)
 end
 
-local function toggle_buffer_prompt()
+M.toggle_buffer_prompt = function()
   local buf_text = buffer.get_text_from_buffer()
 
   vim.cmd("startinsert")
@@ -184,8 +184,6 @@ end
 
 vim.api.nvim_create_user_command("AiPrompt", toggle_prompt, {})
 
-vim.api.nvim_create_user_command("AiBufferPrompt", toggle_buffer_prompt, {})
-
-vim.keymap.set({ "n", "v" }, "<leader>ab", toggle_buffer_prompt, { desc = "[A]I [B]uffer Prompt" })
+vim.api.nvim_create_user_command("AiBufferPrompt", M.toggle_buffer_prompt, {})
 
 return M

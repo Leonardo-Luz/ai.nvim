@@ -57,7 +57,7 @@ local function toggle_ai(opts)
 end
 
 ---Takes text from current selection and refactor it with AI
-local function ai_code_refactor()
+M.ai_code_refactor = function()
   local buf = vim.api.nvim_get_current_buf()
 
   local start_pos = vim.fn.getpos("v") -- Start of visual selection
@@ -119,6 +119,6 @@ end
 
 vim.api.nvim_create_user_command("AiBuffer", toggle_ai, { nargs = 1 })
 
-vim.keymap.set("v", "<leader>ar", ai_code_refactor, { desc = "[A]I Code [R]efactor", silent = false })
+vim.api.nvim_create_user_command("AiBufferRefactor", M.ai_code_refactor, {})
 
 return M
