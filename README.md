@@ -46,6 +46,7 @@
 * `:AiBuffer <arg>`: Generate AI text based on the provided argument and the current buffer's content.
 * `:AiPrompt`: Open a prompt interface to input text for AI generation.
 * `:AiBufferPrompt`: Open a prompt interface and generate text using user input and the current buffer's content or selection.
+* `:AiBufferRefactor`: Refactors the current buffer or selection.
 
 **Key Mappings (Example):**
 
