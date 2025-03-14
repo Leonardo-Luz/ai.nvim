@@ -1,6 +1,6 @@
 # ai.nvim
 
-*A Neovim plugin integrating Google Gemini AI for code completion, refactoring, and text generation.*
+*A Neovim plugin integrating Google Gemini AI for code fix, refactoring, and text generation.*
 
 ## Features
 
