@@ -119,6 +119,6 @@ end
 
 vim.api.nvim_create_user_command("AiBuffer", toggle_ai, { nargs = 1 })
 
-vim.api.nvim_create_user_command("AiBufferRefactor", M.ai_code_refactor, {})
+-- vim.api.nvim_create_user_command("AiBufferRefactor", M.ai_code_refactor, {})
 
 return M

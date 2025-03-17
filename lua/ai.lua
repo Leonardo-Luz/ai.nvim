@@ -1,6 +1,6 @@
 require("dotenv").load()
 
-local fetch = require("http").fetch
+local fetch = require("http").fetch_json
 
 local M = {}
 
@@ -31,13 +31,13 @@ end
 --- Takes some text and use it as AI prompt
 --- @param prompt string -- User prompt
 --- @param system_instruction string|nil -- A default prompt with rules for the system follow
---- @return string
+--- @return { response: table?, error: string? }
 M.generate_text = function(prompt, system_instruction)
   if state.API_KEY == nil then
-    return "AI key not set properly"
+    return { error = "AI key not set properly" }
   end
   if state.API_URL == nil then
-    return "AI url not set properly"
+    return { error = "AI url not set properly" }
   end
 
   sanitized_prompt = sanitizeString(prompt)
@@ -91,11 +91,11 @@ M.generate_text = function(prompt, system_instruction)
   })
 
   if response.err then
-    return response.err
+    return { error = response.err }
   end
 
   local generated_text = response.response.candidates[1].content.parts[1].text or ""
-  return generated_text
+  return { response = response.response }
 end
 
 ---setup ai plugin
