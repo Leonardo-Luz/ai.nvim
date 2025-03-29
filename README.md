@@ -33,9 +33,17 @@
 2. **Install the plugin:** Add `leonardo-luz/ai.nvim` to your Neovim plugin manager (e.g., using packer.nvim, lazy.nvim, etc.):
 
    ```lua
-   { "leonardo-luz/ai.nvim", opts = {
-     ai = "gemini" -- deepseek option isn't avaliable yet
-   } }
+   {
+     "leonardo-luz/ai.nvim",
+     opts = {
+       ai = "gemini", -- other options aren't avaliable yet
+       keys = {
+        --- Configure your leader key (`<leader>`) in your `init.lua` if needed (e.g., `let mapleader = " "`).
+        { { 'n', 'v' }, '<leader>ab', '<cmd>AiBufferPrompt<cr>', { desc = '[A]I [B]uffer Prompt' } },
+        { 'v', '<leader>ar', '<cmd>AiBufferRefactor<cr>', { desc = '[A]I Code [R]efactor' }}
+       }
+     }
+   }
    ```
 
 ## Usage
@@ -47,15 +55,6 @@
 * `:AiPrompt`: Open a prompt interface to input text for AI generation.
 * `:AiBufferPrompt`: Open a prompt interface and generate text using user input and the current buffer's content or selection.
 * `:AiBufferRefactor`: Refactors the current buffer or selection.
-
-**Key Mappings (Example):**
-
-Configure your leader key (`<leader>`) in your `init.lua` if needed (e.g., `let mapleader = " "`). Then add these mappings:
-
-```lua
-vim.keymap.set({ 'n', 'v' }, '<leader>ab', '<cmd>AiBufferPrompt<cr>', { desc = '[A]I [B]uffer Prompt' }),
-vim.keymap.set('v', '<leader>ar', '<cmd>AiBufferRefactor<cr>', { desc = '[A]I Code [R]efactor' }),
-```
 
 **Lua Functions:**
 

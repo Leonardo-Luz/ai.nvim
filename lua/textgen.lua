@@ -30,7 +30,7 @@ end
 --- @return generate.Text
 M.generate_text = function(opts)
   if GEMINI_API_KEY == nil then
-    return { generated_text = "AI key not properly set" }
+    return { generated_text = "GEMINI_API_KEY not properly set" }
   end
 
   local sanitized_prompt = sanitizeString(opts.prompt)

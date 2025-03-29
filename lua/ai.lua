@@ -43,7 +43,7 @@ M.generate_text = function(prompt, system_instruction)
   sanitized_prompt = sanitizeString(prompt)
 
   local system_prompt = ((system_instruction == nil) and "Follow the user's instructions precisely.")
-    or system_instruction
+      or system_instruction
 
   local sanitized_system_prompt = sanitizeString(system_prompt or "")
 
@@ -60,7 +60,7 @@ M.generate_text = function(prompt, system_instruction)
     model = "deepseek-chat",
     messages = {
       { role = "system", content = system_instruction or "Follow the user's instructions precisely." },
-      { role = "user", content = sanitized_prompt },
+      { role = "user",   content = sanitized_prompt },
     },
     stream = false,
   }
@@ -69,7 +69,7 @@ M.generate_text = function(prompt, system_instruction)
     model = state.API_MODEL,
     messages = {
       { role = "system", content = system_instruction or "" },
-      { role = "user", content = sanitized_prompt },
+      { role = "user",   content = sanitized_prompt },
     },
   }
 
@@ -84,7 +84,7 @@ M.generate_text = function(prompt, system_instruction)
     headers = {
       "Content-Type: application/json",
       ((state.ai and "gemini") and "x-goog-api-key: " .. state.API_KEY)
-        or ((state.ai and "deepseek") and "Authorization: Bearer " .. state.API_KEY),
+      or ((state.ai and "deepseek") and "Authorization: Bearer " .. state.API_KEY),
     },
     method = "POST",
     body = body,
@@ -94,7 +94,6 @@ M.generate_text = function(prompt, system_instruction)
     return { error = response.err }
   end
 
-  local generated_text = response.response.candidates[1].content.parts[1].text or ""
   return { response = response.response }
 end
 
@@ -104,13 +103,13 @@ M.setup = function(opts)
   state.ai = opts.ai
 
   local GEMINI_API_URL = (vim.env.GEMINI_API_URL or os.getenv("GEMINI_API_URL"))
-    or "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent"
+      or "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent"
 
   local DEEPSEEK_API_URL = (vim.env.DEEPSEEK_API_URL or os.getenv("DEEPSEEK_API_URL"))
-    or "https://api.deepseek.com/chat/completions"
+      or "https://api.deepseek.com/chat/completions"
 
   local OPENROUTER_API_URL = (vim.env.OPENROUTER_API_URL or os.getenv("OPENROUTER_API_URL"))
-    or "https://openrouter.ai/api/v1/chat/completions"
+      or "https://openrouter.ai/api/v1/chat/completions"
 
   local OTHER_API_URL = vim.env.OTHER_API_URL or os.getenv("OTHER_API_URL")
 
@@ -122,14 +121,14 @@ M.setup = function(opts)
   state.API_MODEL = opts.model
 
   state.API_URL = ((opts.ai and "gemini") and GEMINI_API_URL)
-    or ((opts.ai and "deepseek") and DEEPSEEK_API_URL)
-    or ((opts.ai and "openrouter") and OPENROUTER_API_URL)
-    or ((opts.ai and "other") and OTHER_API_URL)
+      or ((opts.ai and "deepseek") and DEEPSEEK_API_URL)
+      or ((opts.ai and "openrouter") and OPENROUTER_API_URL)
+      or ((opts.ai and "other") and OTHER_API_URL)
 
   state.API_KEY = ((opts.ai and "gemini") and GEMINI_API_KEY)
-    or ((opts.ai and "deepseek") and DEEPSEEK_API_KEY)
-    or ((opts.ai and "openrouter") and OPENROUTER_API_KEY)
-    or ((opts.ai and "other") and OTHER_API_KEY)
+      or ((opts.ai and "deepseek") and DEEPSEEK_API_KEY)
+      or ((opts.ai and "openrouter") and OPENROUTER_API_KEY)
+      or ((opts.ai and "other") and OTHER_API_KEY)
 end
 
 --- Takes user input
