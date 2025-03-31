@@ -7,7 +7,7 @@ M.ai_code_refactor = function()
   local buf = vim.api.nvim_get_current_buf()
 
   local start_pos = vim.fn.getpos("v") -- Start of visual selection
-  local end_pos = vim.fn.getpos(".") -- End of visual selection (cursor position)
+  local end_pos = vim.fn.getpos(".")   -- End of visual selection (cursor position)
 
   -- Ensure we have the correct positions (start <= end)
   local start_line = math.min(start_pos[2], end_pos[2])
@@ -19,17 +19,18 @@ M.ai_code_refactor = function()
   local selected_text = table.concat(selected_lines, "\n")
 
   -- Get the file extension of the current buffer
-  local file_extension = vim.fn.expand("%:e") -- Get the file extension (e.g., 'lua', 'py', 'js')
+  -- local file_type = vim.fn.expand("%:e")
+
+  -- Get the file type of the current buffer
+  local file_type = vim.bo.filetype
 
   -- AI prompt
   local instruction = string.format(
     [[
 You are a code improver that strictly follows these rules: Refactor the provided code in the specified file format (%s). Preserve functionality, comments, original formatting (indentation and line breaks), and approximate code size. Focus on improving efficiency, readability, and correctness. Output only the improved code **without using markdown code blocks or triple backticks**. Do not include any comments (except pre-existing ones) or explanations. Never enclose the improved code in a code block.
     ]],
-    (file_extension:len() == 0 and ".lua") or file_extension
+    (file_type:len() == 0 and "lua") or file_type
   )
-
-  vim.print(instruction)
 
   local generated_text = nil
   local success, err = pcall(function()
