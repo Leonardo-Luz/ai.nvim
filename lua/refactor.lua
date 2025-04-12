@@ -3,7 +3,8 @@ local ai = require("ai")
 local M = {}
 
 ---Takes text from current selection and refactor it with AI
-M.ai_code_refactor = function()
+---@param instruction string
+M.ai_code_refactor = function(instruction)
   local buf = vim.api.nvim_get_current_buf()
 
   local start_pos = vim.fn.getpos("v") -- Start of visual selection
@@ -17,20 +18,6 @@ M.ai_code_refactor = function()
   local selected_lines = vim.api.nvim_buf_get_lines(buf, start_line - 1, end_line, false)
 
   local selected_text = table.concat(selected_lines, "\n")
-
-  -- Get the file extension of the current buffer
-  -- local file_type = vim.fn.expand("%:e")
-
-  -- Get the file type of the current buffer
-  local file_type = vim.bo.filetype
-
-  -- AI prompt
-  local instruction = string.format(
-    [[
-You are a code improver that strictly follows these rules: Refactor the provided code in the specified file format (%s). Preserve functionality, comments, original formatting (indentation and line breaks), and approximate code size. Focus on improving efficiency, readability, and correctness. Output only the improved code **without using markdown code blocks or triple backticks**. Do not include any comments (except pre-existing ones) or explanations. Never enclose the improved code in a code block.
-    ]],
-    (file_type:len() == 0 and "lua") or file_type
-  )
 
   local generated_text = nil
   local success, err = pcall(function()
@@ -78,6 +65,24 @@ You are a code improver that strictly follows these rules: Refactor the provided
   vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Esc>", true, false, true), "n", true)
 end
 
-vim.api.nvim_create_user_command("AiBufferRefactor", M.ai_code_refactor, {})
+local function refactor_code_command()
+  -- Get the file extension of the current buffer
+  -- local file_type = vim.fn.expand("%:e")
+
+  -- Get the file type of the current buffer
+  local file_type = vim.bo.filetype
+
+  -- AI prompt
+  local instruction = string.format(
+    [[
+You are a code improver that strictly follows these rules: Refactor the provided code in the specified file format (%s). Preserve functionality, comments, original formatting (indentation and line breaks), and approximate code size. Focus on improving efficiency, readability, and correctness. Output only the improved code **without using markdown code blocks or triple backticks**. Do not include any comments (except pre-existing ones) or explanations. Never enclose the improved code in a code block.
+    ]],
+    (file_type:len() == 0 and "lua") or file_type
+  )
+
+  M.ai_code_refactor(instruction)
+end
+
+vim.api.nvim_create_user_command("AiBufferRefactor", refactor_code_command, {})
 
 return M
